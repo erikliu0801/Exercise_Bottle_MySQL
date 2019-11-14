@@ -30,23 +30,31 @@ testAPI = [{
 ]
 
 #
-@get('/get') #ok
+@get('/read') #ok
 def getAll():
     return {'testAPI':testAPI}
 
-@get('/get/<objectID>') #ok
+@get('/read/<objectID>') #ok
 def getOne(objectID):
     for i in testAPI:
         if i['objectID'] == str(objectID):
             return i
 
-@post('/post') #ok
+@post('/create') #ok
 def addOne():
     new_object = {'objectID': request.json.get('objectID'),'device': request.json.get('device'),'Info': request.json.get('Info')}
     testAPI.append(new_object)
     return {'testAPI':testAPI}
 
-@delete('/remove/<objectID>') #ok
+@post('/update') #ok
+def changeOne():
+    request_object = {'objectID': request.json.get('objectID'),'device': request.json.get('device'),'Info': request.json.get('Info')}
+    for _, i in enumerate(testAPI):
+        if i['objectID'] == str(request_object['objectID']):
+            testAPI[_] = request_object    
+    return {'testAPI':testAPI}
+
+@delete('/delete/<objectID>') #ok
 def removeOne(objectID):
     for i in testAPI:
         if i['objectID'] == str(objectID):
