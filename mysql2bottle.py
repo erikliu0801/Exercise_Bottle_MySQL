@@ -1,16 +1,29 @@
 import bottle
-import bottle_mysql
+from bottle import route, run, template, app, HTTPError
+
+@route('/')
+def hello():
+    return "Hello World!"
+
+#connect db
 import MySQLdb
+db = MySQLdb.connect(host='localhost',user='root',passwd='',db='dbname')
+cursor = db.cursor()
+cursor.execute('SELECT * FROM dbTablename')
+results = cursor.fetchall()
 
-app = bottle.Bottle()
-# dbhost is optional, default is localhost
-plugin = bottle_mysql.Plugin(dbuser='root', dbpass='1234', dbname='opendata')
-app.install(plugin)
+#api dev
+from bottle import get
+@get('/get')
+def getData():
+    import json
+    results_json = json.dumps(results)
+    return (results_json)
 
-@app.route('/show/<item>')
-def show(item, db):
-    db.execute('SELECT * from items where name="%s"', (item,))
-    row = db.fetchone()
-    if row:
-        return template('showitem', page=row)
-    return HTTPError(404, "Page not found")
+from bottle import error
+@error(404)
+def error404(error):
+    return 'Nothing here, error404'
+
+if __name__ == '__main__':
+    run(host='0.0.0.0', port=8080, debug=True)
